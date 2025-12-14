@@ -2,10 +2,10 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Juego del Impostor - Países</title>
+  <title>Juego del Impostor - Fútbol</title>
   <style>
     body { font-family: sans-serif; text-align: center; margin-top: 30px; background: #111; color: #eee; }
-    h1 { color: #00c2ff; }
+    h1 { color: #00ff88; }
     #pantalla { font-size: 1.5em; margin: 20px; min-height: 2em; }
     button { padding: 15px 30px; font-size: 1.2em; border: none; border-radius: 8px; background: #ff4444; color: #fff; cursor: pointer; }
     button:disabled { background: #444; cursor: not-allowed; }
@@ -13,46 +13,48 @@
 </head>
 <body>
 
-  <h1>Juego: El Impostor - Países</h1>
-  <div id="pantalla">Cargando países...</div>
+  <h1>Juego: El Impostor - Equipos de Fútbol</h1>
+  <div id="pantalla">Cargando equipos...</div>
   <button id="btn" onclick="mostrarRol()" disabled>Ver mi rol</button>
 
   <script>
     const jugadores = 9;
     let roles = [];
     let contador = 0;
-    let pais = null;
-    let paises = [];
+    let equipo = null;
+    let equipos = [];
 
-    async function cargarPaises() {
+    async function cargarEquipos() {
       try {
-        const res = await fetch("https://restcountries.com/v3.1/all?fields=name");
+        const res = await fetch(
+          "https://www.thesportsdb.com/api/v1/json/3/search_all_teams.php?l=Spanish%20La%20Liga"
+        );
         const data = await res.json();
 
-        if (!Array.isArray(data) || data.length === 0) {
-          throw new Error("Sin países");
+        if (!data.teams || data.teams.length === 0) {
+          throw new Error("Sin equipos");
         }
 
-        paises = data.map(p => p.name.common);
-        pais = paises[Math.floor(Math.random() * paises.length)];
+        equipos = data.teams.map(t => t.strTeam);
+        equipo = equipos[Math.floor(Math.random() * equipos.length)];
 
         prepararRoles();
         document.getElementById("pantalla").innerText = "Jugador 1, toca el botón";
         document.getElementById("btn").disabled = false;
 
       } catch {
-        document.getElementById("pantalla").innerText = "Cargando países...";
+        document.getElementById("pantalla").innerText = "Cargando equipos...";
         document.getElementById("btn").disabled = true;
       }
     }
 
     function prepararRoles() {
-      roles = Array(jugadores).fill("Pais");
+      roles = Array(jugadores).fill("Equipo");
       let impostores = 0;
 
       while (impostores < 2) {
         const i = Math.floor(Math.random() * jugadores);
-        if (roles[i] === "Pais") {
+        if (roles[i] === "Equipo") {
           roles[i] = "Impostor";
           impostores++;
         }
@@ -71,7 +73,7 @@
       document.getElementById("pantalla").innerText =
         rol === "Impostor"
           ? `Jugador ${contador + 1}: Eres IMPOSTOR`
-          : `Jugador ${contador + 1}: ${pais}`;
+          : `Jugador ${contador + 1}: ${equipo}`;
 
       setTimeout(() => {
         document.getElementById("pantalla").innerText =
@@ -81,7 +83,7 @@
       contador++;
     }
 
-    cargarPaises();
+    cargarEquipos();
   </script>
 
 </body>
