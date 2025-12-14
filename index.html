@@ -9,39 +9,38 @@
     #pantalla { font-size: 1.5em; margin: 20px; min-height: 2em; }
     button { padding: 15px 30px; font-size: 1.2em; border: none; border-radius: 8px; background: #ff4444; color: #fff; cursor: pointer; }
     button:disabled { background: #444; cursor: not-allowed; }
-    img { max-width: 220px; display: block; margin: 20px auto; border-radius: 12px; box-shadow: 0 0 10px rgba(255,255,255,0.3); }
   </style>
 </head>
 <body>
+
   <h1>Juego: El Impostor - Países</h1>
   <div id="pantalla">Cargando países...</div>
   <button id="btn" onclick="mostrarRol()" disabled>Ver mi rol</button>
-  <img id="imagen" style="display:none">
 
   <script>
     const jugadores = 9;
     let roles = [];
     let contador = 0;
-    let paisSeleccionado = null;
+    let pais = null;
     let paises = [];
 
     async function cargarPaises() {
       try {
-        const res = await fetch("https://restcountries.com/v3.1/all");
+        const res = await fetch("https://restcountries.com/v3.1/all?fields=name");
         const data = await res.json();
 
         if (!Array.isArray(data) || data.length === 0) {
           throw new Error("Sin países");
         }
 
-        paises = data;
-        paisSeleccionado = paises[Math.floor(Math.random() * paises.length)];
-        prepararRoles();
+        paises = data.map(p => p.name.common);
+        pais = paises[Math.floor(Math.random() * paises.length)];
 
+        prepararRoles();
         document.getElementById("pantalla").innerText = "Jugador 1, toca el botón";
         document.getElementById("btn").disabled = false;
 
-      } catch (error) {
+      } catch {
         document.getElementById("pantalla").innerText = "Cargando países...";
         document.getElementById("btn").disabled = true;
       }
@@ -69,21 +68,14 @@
 
       const rol = roles[contador];
 
-      if (rol === "Impostor") {
-        document.getElementById("pantalla").innerText =
-          "Jugador " + (contador + 1) + ": Eres IMPOSTOR";
-        document.getElementById("imagen").style.display = "none";
-      } else {
-        document.getElementById("pantalla").innerText =
-          "Jugador " + (contador + 1) + ": " + paisSeleccionado.name.common;
-        document.getElementById("imagen").src = paisSeleccionado.flags.png;
-        document.getElementById("imagen").style.display = "block";
-      }
+      document.getElementById("pantalla").innerText =
+        rol === "Impostor"
+          ? `Jugador ${contador + 1}: Eres IMPOSTOR`
+          : `Jugador ${contador + 1}: ${pais}`;
 
       setTimeout(() => {
         document.getElementById("pantalla").innerText =
           "Listo. Pasa el dispositivo al siguiente jugador.";
-        document.getElementById("imagen").style.display = "none";
       }, 3000);
 
       contador++;
@@ -91,5 +83,6 @@
 
     cargarPaises();
   </script>
+
 </body>
 </html>
