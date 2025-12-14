@@ -2,10 +2,10 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Juego del Impostor - Fútbol</title>
+  <title>Juego del Impostor - Oficios</title>
   <style>
     body { font-family: sans-serif; text-align: center; margin-top: 30px; background: #111; color: #eee; }
-    h1 { color: #00ff88; }
+    h1 { color: #ffaa00; }
     #pantalla { font-size: 1.5em; margin: 20px; min-height: 2em; }
     button { padding: 15px 30px; font-size: 1.2em; border: none; border-radius: 8px; background: #ff4444; color: #fff; cursor: pointer; }
     button:disabled { background: #444; cursor: not-allowed; }
@@ -13,48 +13,57 @@
 </head>
 <body>
 
-  <h1>Juego: El Impostor - Equipos de Fútbol</h1>
-  <div id="pantalla">Cargando equipos...</div>
-  <button id="btn" onclick="mostrarRol()" disabled>Ver mi rol</button>
+  <h1>Juego: El Impostor - Oficios y Trabajos</h1>
+  <div id="pantalla">Preparando juego...</div>
+  <button id="btn" onclick="mostrarRol()">Ver mi rol</button>
 
   <script>
     const jugadores = 9;
+    const oficios = [
+      "Carpintero",
+      "Electricista",
+      "Plomero",
+      "Albañil",
+      "Mecánico",
+      "Programador",
+      "Diseñador gráfico",
+      "Contador",
+      "Abogado",
+      "Médico",
+      "Enfermero",
+      "Docente",
+      "Arquitecto",
+      "Ingeniero",
+      "Panadero",
+      "Cocinero",
+      "Repartidor",
+      "Chofer",
+      "Soldador",
+      "Pintor",
+      "Jardinero",
+      "Cerrajero",
+      "Técnico en redes",
+      "Community manager",
+      "Analista de datos"
+    ];
+
     let roles = [];
     let contador = 0;
-    let equipo = null;
-    let equipos = [];
+    let oficio = null;
 
-    async function cargarEquipos() {
-      try {
-        const res = await fetch(
-          "https://www.thesportsdb.com/api/v1/json/3/search_all_teams.php?l=Spanish%20La%20Liga"
-        );
-        const data = await res.json();
-
-        if (!data.teams || data.teams.length === 0) {
-          throw new Error("Sin equipos");
-        }
-
-        equipos = data.teams.map(t => t.strTeam);
-        equipo = equipos[Math.floor(Math.random() * equipos.length)];
-
-        prepararRoles();
-        document.getElementById("pantalla").innerText = "Jugador 1, toca el botón";
-        document.getElementById("btn").disabled = false;
-
-      } catch {
-        document.getElementById("pantalla").innerText = "Cargando equipos...";
-        document.getElementById("btn").disabled = true;
-      }
+    function iniciarJuego() {
+      oficio = oficios[Math.floor(Math.random() * oficios.length)];
+      prepararRoles();
+      document.getElementById("pantalla").innerText = "Jugador 1, toca el botón";
     }
 
     function prepararRoles() {
-      roles = Array(jugadores).fill("Equipo");
+      roles = Array(jugadores).fill("Oficio");
       let impostores = 0;
 
       while (impostores < 2) {
         const i = Math.floor(Math.random() * jugadores);
-        if (roles[i] === "Equipo") {
+        if (roles[i] === "Oficio") {
           roles[i] = "Impostor";
           impostores++;
         }
@@ -73,7 +82,7 @@
       document.getElementById("pantalla").innerText =
         rol === "Impostor"
           ? `Jugador ${contador + 1}: Eres IMPOSTOR`
-          : `Jugador ${contador + 1}: ${equipo}`;
+          : `Jugador ${contador + 1}: ${oficio}`;
 
       setTimeout(() => {
         document.getElementById("pantalla").innerText =
@@ -83,7 +92,7 @@
       contador++;
     }
 
-    cargarEquipos();
+    iniciarJuego();
   </script>
 
 </body>
