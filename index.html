@@ -2,10 +2,10 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Juego del Impostor DBZ</title>
+  <title>Juego del Impostor - Países</title>
   <style>
     body { font-family: sans-serif; text-align: center; margin-top: 30px; background: #111; color: #eee; }
-    h1 { color: #ffcc00; }
+    h1 { color: #00c2ff; }
     #pantalla { font-size: 1.5em; margin: 20px; min-height: 2em; }
     button { padding: 15px 30px; font-size: 1.2em; border: none; border-radius: 8px; background: #ff4444; color: #fff; cursor: pointer; }
     button:disabled { background: #444; cursor: not-allowed; }
@@ -13,8 +13,8 @@
   </style>
 </head>
 <body>
-  <h1>Juego: El Impostor DBZ</h1>
-  <div id="pantalla">Cargando personaje...</div>
+  <h1>Juego: El Impostor - Países</h1>
+  <div id="pantalla">Cargando países...</div>
   <button id="btn" onclick="mostrarRol()" disabled>Ver mi rol</button>
   <img id="imagen" style="display:none">
 
@@ -22,64 +22,74 @@
     const jugadores = 9;
     let roles = [];
     let contador = 0;
-    let personaje = null;
+    let paisSeleccionado = null;
+    let paises = [];
 
-    async function cargarPersonaje(){
+    async function cargarPaises() {
       try {
-        const total = 100; // cantidad aproximada de personajes en la API
-        const randomId = Math.floor(Math.random() * total) + 1;
-        const res = await fetch(`https://dragonball-api.com/api/characters/${randomId}`);
-        personaje = await res.json();
+        const res = await fetch("https://restcountries.com/v3.1/all");
+        const data = await res.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+          throw new Error("Sin países");
+        }
+
+        paises = data;
+        paisSeleccionado = paises[Math.floor(Math.random() * paises.length)];
         prepararRoles();
+
         document.getElementById("pantalla").innerText = "Jugador 1, toca el botón";
         document.getElementById("btn").disabled = false;
-      } catch (e) {
-        document.getElementById("pantalla").innerText = "Error al cargar personaje";
+
+      } catch (error) {
+        document.getElementById("pantalla").innerText = "Cargando países...";
+        document.getElementById("btn").disabled = true;
       }
     }
 
-    function prepararRoles(){
-      roles = Array(jugadores).fill("Personaje");
+    function prepararRoles() {
+      roles = Array(jugadores).fill("Pais");
       let impostores = 0;
-      while(impostores < 2){
-        let i = Math.floor(Math.random() * jugadores);
-        if(roles[i] === "Personaje"){
+
+      while (impostores < 2) {
+        const i = Math.floor(Math.random() * jugadores);
+        if (roles[i] === "Pais") {
           roles[i] = "Impostor";
           impostores++;
         }
       }
     }
 
-    function mostrarRol(){
-      if(contador < jugadores){
-        let rol = roles[contador];
-        if(rol === "Impostor"){
-          document.getElementById("pantalla").innerText =
-            "Jugador " + (contador+1) + ": Eres IMPOSTOR";
-          document.getElementById("imagen").style.display = "none";
-        } else {
-          document.getElementById("pantalla").innerText =
-            "Jugador " + (contador+1) + ": " + personaje.name;
-          document.getElementById("imagen").src = personaje.image;
-          document.getElementById("imagen").style.display = "block";
-        }
-
-        // Oculta después de 3 segundos
-        setTimeout(() => {
-          document.getElementById("pantalla").innerText = 
-            "Listo. Pasa el dispositivo al siguiente jugador.";
-          document.getElementById("imagen").style.display = "none";
-        }, 3000);
-
-        contador++;
-      } else {
+    function mostrarRol() {
+      if (contador >= jugadores) {
         document.getElementById("pantalla").innerText = "Todos ya tienen rol";
-        document.getElementById("imagen").style.display = "none";
         document.getElementById("btn").disabled = true;
+        return;
       }
+
+      const rol = roles[contador];
+
+      if (rol === "Impostor") {
+        document.getElementById("pantalla").innerText =
+          "Jugador " + (contador + 1) + ": Eres IMPOSTOR";
+        document.getElementById("imagen").style.display = "none";
+      } else {
+        document.getElementById("pantalla").innerText =
+          "Jugador " + (contador + 1) + ": " + paisSeleccionado.name.common;
+        document.getElementById("imagen").src = paisSeleccionado.flags.png;
+        document.getElementById("imagen").style.display = "block";
+      }
+
+      setTimeout(() => {
+        document.getElementById("pantalla").innerText =
+          "Listo. Pasa el dispositivo al siguiente jugador.";
+        document.getElementById("imagen").style.display = "none";
+      }, 3000);
+
+      contador++;
     }
 
-    cargarPersonaje();
+    cargarPaises();
   </script>
 </body>
 </html>
